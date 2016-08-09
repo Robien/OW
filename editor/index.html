@@ -1,0 +1,92 @@
+<div id="map"></div>
+Choix de la case :
+<div id="pannel"> </div>
+Selection :
+<div id="selected"></div>
+<script>
+
+var herbe = {src: "Herbe.png", id: 0};
+var montagne = {src: "Montagne.png", id: 1};
+var Chemin_base = {src: "Chemin_base.png", id: 2};
+var Chemin_corner_LB = {src: "Chemin_corner_LB.png", id: 3};
+var Chemin_corner_RB = {src: "Chemin_corner_RB.png", id: 4};
+var Chemin_Horiz = {src: "Chemin_Horiz.png", id: 5};
+var Chemin_T_Haut = {src: "Chemin_T_Haut.png", id: 6};
+var Chemin_T_Right = {src: "Chemin_T_Right.png", id: 7};
+var Foret = {src: "Foret.png", id: 8};
+var Mert_Bas = {src: "Mer-t_Bas.png", id: 9};
+var Chemin_Carrefour = {src: "Chemin_Carrefour.png", id: 10};
+var Chemin_corner_LH = {src: "Chemin_corner_LH.png", id: 11};
+var Chemin_corner_RH = {src: "Chemin_corner_RH.png", id: 12};
+var Chemin_T_Bas = {src: "Chemin_T_Bas.png", id: 13};
+var Chemin_T_Left = {src: "Chemin_T_Left.png", id: 14};
+var Chemin_Verti = {src: "Chemin_Verti.png", id: 15};
+var Mer_1 = {src: "Mer_1.png", id: 16};
+var Mert_Haut_1 = {src: "Mer-t_Haut_1.png", id: 17};
+
+var defaultCase = herbe;
+var selected = herbe;
+
+var cases = [herbe, montagne,Chemin_base, Chemin_corner_LB,Chemin_corner_RB,Chemin_Horiz,Chemin_T_Haut,Chemin_T_Right,Foret,Chemin_Carrefour,Chemin_corner_LH,Chemin_corner_RH,Chemin_T_Bas,Chemin_T_Left,Chemin_Verti,Mer_1,Mert_Bas, Mert_Haut_1];
+
+
+generateMap();
+generatePannel();
+setSelectedCase(herbe);
+
+function setSelectedCase(caseSelected)
+{
+	selected = caseSelected;
+	document.getElementById("selected").innerHTML = "<img src=\"" + selected.src + "\" />";
+}
+
+function setSelectedCaseId(caseSelectedId)
+{
+	setSelectedCase(cases[caseSelectedId]);
+}
+
+function generateMap()
+{
+
+	abc = "<p>";
+
+	for (i = 0; i < 12; i++)
+	{
+		for (j = 0; j < 16; j++)
+		{
+			abc += "<img id=\"" + i + "i" + j + "j" + "\" src=\"./" + defaultCase.src + "\" OnClick=\"javascript:onMapClick(" + i + ", " + j + ")\" />";  
+		}
+		abc += "<br />";
+	}
+
+	abc += "</p>";
+
+	document.getElementById("map").innerHTML = abc;
+
+}
+
+
+function generatePannel()
+{
+
+	abc = "";
+
+	for (i = 0; i < cases.length; i++)
+	{
+		abc += "<img src=\"" + cases[i].src + "\" OnClick=\"javascript:setSelectedCaseId("+i+")\" />";
+	}
+
+	document.getElementById("pannel").innerHTML = abc;
+
+}
+
+function onMapClick(i, j)
+{
+
+	document.getElementById(i + "i" + j + "j").src = selected.src
+
+
+}
+
+
+</script>
