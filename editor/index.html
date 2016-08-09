@@ -3,6 +3,15 @@ Choix de la case :
 <div id="pannel"> </div>
 Selection :
 <div id="selected"></div>
+<input type="button" value="reset" OnClick="javascript:resetMap()" /> <br />
+<textarea rows="10" cols="30" id="data">
+</textarea><br />
+<input type="button" value="load" OnClick="javascript:loadMap()" />
+<input type="button" value="save" OnClick="javascript:saveMap()" />
+
+
+
+
 <script>
 
 var herbe = {src: "Herbe.png", id: 0};
@@ -14,14 +23,14 @@ var Chemin_Horiz = {src: "Chemin_Horiz.png", id: 5};
 var Chemin_T_Haut = {src: "Chemin_T_Haut.png", id: 6};
 var Chemin_T_Right = {src: "Chemin_T_Right.png", id: 7};
 var Foret = {src: "Foret.png", id: 8};
-var Mert_Bas = {src: "Mer-t_Bas.png", id: 9};
-var Chemin_Carrefour = {src: "Chemin_Carrefour.png", id: 10};
-var Chemin_corner_LH = {src: "Chemin_corner_LH.png", id: 11};
-var Chemin_corner_RH = {src: "Chemin_corner_RH.png", id: 12};
-var Chemin_T_Bas = {src: "Chemin_T_Bas.png", id: 13};
-var Chemin_T_Left = {src: "Chemin_T_Left.png", id: 14};
-var Chemin_Verti = {src: "Chemin_Verti.png", id: 15};
-var Mer_1 = {src: "Mer_1.png", id: 16};
+var Chemin_Carrefour = {src: "Chemin_Carrefour.png", id: 9};
+var Chemin_corner_LH = {src: "Chemin_corner_LH.png", id: 10};
+var Chemin_corner_RH = {src: "Chemin_corner_RH.png", id: 11};
+var Chemin_T_Bas = {src: "Chemin_T_Bas.png", id: 12};
+var Chemin_T_Left = {src: "Chemin_T_Left.png", id: 13};
+var Chemin_Verti = {src: "Chemin_Verti.png", id: 14};
+var Mer_1 = {src: "Mer_1.png", id: 15};
+var Mert_Bas = {src: "Mer-t_Bas.png", id: 16};
 var Mert_Haut_1 = {src: "Mer-t_Haut_1.png", id: 17};
 
 var defaultCase = herbe;
@@ -33,6 +42,13 @@ var cases = [herbe, montagne,Chemin_base, Chemin_corner_LB,Chemin_corner_RB,Chem
 generateMap();
 generatePannel();
 setSelectedCase(herbe);
+
+
+function resetMap()
+{
+	defaultCase = selected;
+	generateMap();
+}
 
 function setSelectedCase(caseSelected)
 {
@@ -63,6 +79,14 @@ function generateMap()
 
 	document.getElementById("map").innerHTML = abc;
 
+	for (i = 0; i < 12; i++)
+	{
+		for (j = 0; j < 16; j++)
+		{
+			document.getElementById(i + "i" + j + "j").mapId = selected.id;
+		}
+	}
+
 }
 
 
@@ -84,9 +108,41 @@ function onMapClick(i, j)
 {
 
 	document.getElementById(i + "i" + j + "j").src = selected.src
+		document.getElementById(i + "i" + j + "j").mapId = selected.id;
 
 
 }
 
+function saveMap()
+{
+	abc = "";
+	for (i = 0; i < 12; i++)
+	{
+		for (j = 0; j < 16; j++)
+		{
+			abc += (String.fromCharCode((document.getElementById(i + "i" + j + "j").mapId + 'a'.charCodeAt(0))) + "");
+		}
+	}
+
+
+	document.getElementById("data").value = abc;
+
+}
+
+function loadMap()
+{
+	abc = document.getElementById("data").value;
+	c = 0;
+	while (abc[c])
+	{
+		j = Math.floor(c%16);
+		i = Math.floor(c/16);
+		code = abc[c].charCodeAt(0)-'a'.charCodeAt(0);
+
+		document.getElementById(i + "i" + j + "j").src = cases[code].src;
+
+		c++;
+	}
+}
 
 </script>
