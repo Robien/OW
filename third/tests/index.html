@@ -1,0 +1,40 @@
+<script src="http://cdn.peerjs.com/0.3/peer.js"></script>
+
+
+<input type="text" id="peerID" /> <input type="button" OnClick="javascript:connect()" />
+<br />
+<input type="text" id="OPeerID" /> <input type="button" OnClick="javascript:connectToPeer()" />
+
+<div id="res">
+</div>
+
+<script>
+
+var peer;
+
+
+function connect()
+{
+peer = new Peer(document.getElementById("peerID").value, {host: 'localhost', port: 9000, path: '/'});
+peer.on('connection', function(conn) {
+  conn.on('data', function(data){
+    // Will print 'hi!'
+    
+document.getElementById("res").innerHTML += data + "<br />";
+//console.log(data);
+  });
+});
+}
+
+function connectToPeer()
+{
+var conn = peer.connect(document.getElementById("OPeerID").value);
+conn.serialization='none';
+conn.on('open', function(){
+  conn.send('hi!');
+});
+
+
+}
+
+</script>
