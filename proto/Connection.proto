@@ -1,0 +1,54 @@
+syntax = "proto3";
+package Connection;
+
+
+message ConnectionMessageClient
+{
+	enum ConnectionMessageTypeClient
+	{
+		START_MATCH_MAKING = 0;
+		STOP_MATCH_MAKING = 1;
+		READY = 2;
+	}
+	
+	ConnectionMessageTypeClient type = 1;
+	
+	StartMatchMaking startMatchMaking = 2;
+}
+
+message ConnectionMessageServer
+{
+	enum ConnectionMessageTypeServer
+	{
+		ACK_MATCH_MAKING = 0;
+		MATCH_FOUND = 1;
+		START_GAME = 2;
+	}
+		
+	ConnectionMessageTypeServer type = 1;
+	
+	ACKMM ackmm = 2;
+	StartGame startGame = 3;
+}
+
+message StartMatchMaking
+{
+	int32 versionMajor = 1;
+	int32 versionMinor = 2;
+
+	int32 Elo = 3;
+	
+	string myName = 4;
+	string challengedName = 5;
+}
+
+message ACKMM
+{
+	bool isOk = 1;
+}
+
+message StartGame
+{
+	bool isMain = 1;
+	string challengedName = 2;
+}
