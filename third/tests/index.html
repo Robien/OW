@@ -1,4 +1,5 @@
 <script src="http://cdn.peerjs.com/0.3/peer.js"></script>
+<script src="./connection.js"></script>
 
 
 <input type="text" id="peerID" /> <input type="button" OnClick="javascript:connect()" />
@@ -19,8 +20,14 @@ peer = new Peer(document.getElementById("peerID").value, {host: 'localhost', por
 peer.on('connection', function(conn) {
   conn.on('data', function(data){
     // Will print 'hi!'
-    
-document.getElementById("res").innerHTML += data + "<br />";
+   buffStr = data.split(",");
+
+var message = new proto.Connection.ConnectionMessageClient();
+
+message = proto.Connection.ConnectionMessageClient.deserializeBinary(buffStr);
+
+
+document.getElementById("res").innerHTML += message.getStartmatchmaking().getMyname() + "<br />";
 //console.log(data);
   });
 });
@@ -31,7 +38,39 @@ function connectToPeer()
 var conn = peer.connect(document.getElementById("OPeerID").value);
 conn.serialization='none';
 conn.on('open', function(){
-  conn.send('hi!');
+
+
+
+
+
+
+var message = new proto.Connection.ConnectionMessageClient();
+
+message.setType(proto.Connection.ConnectionMessageClient.ConnectionMessageTypeClient.START_MATCH_MAKING);
+
+var smm = new proto.Connection.StartMatchMaking();
+
+smm.setVersionmajor(0);
+smm.setVersionminor(0);
+smm.setElo(0);
+smm.setMyname("pomme");
+smm.setChallengedname("");
+
+message.setStartmatchmaking(smm);
+
+// Serializes to a UInt8Array.
+bytes = message.serializeBinary();
+//console.log('message len :' + bytes.length);
+//console.log('message :' + bytes.toString());
+
+
+
+//alert(bytes.length);
+//alert(bytes.join());
+
+conn.send(bytes.join());
+
+//  conn.send('hi!');
 });
 
 
