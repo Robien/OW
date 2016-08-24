@@ -14,10 +14,37 @@ RTCIceCandidate = wrtc.RTCIceCandidate;
 WebSocket = require('ws')
 require('./exports.js');
 
-var peer = new Peer("server", {host: 'localhost', port: 9000, path: '/'});
+require('./connection.js');
+
+
+var waitingPeer = "";
+
+
+var peer = new Peer("server", {host: '192.168.1.23', port: 9000, path: '/'});
 peer.on('connection', function(conn) {
   conn.on('data', function(data){
 console.log("server receive = " + data);
+ buffStr = data.split(",");
+
+var message = new proto.Connection.ConnectionMessageClient();
+
+message = proto.Connection.ConnectionMessageClient.deserializeBinary(buffStr);
+
+if (waitingPeer == "")
+{
+	waitingPeer = message.getStartmatchmaking().getMyname()
+console.log("peer start waiting : " + message.getStartmatchmmaking().getMyname());
+}
+else
+{
+//send the name of the waiting peer to the new peer and the new peer names to the waiting peer
+
+console.log("match starting with " + waitingPeer + " and " + message.getStartmatchmmaking().getMyname());
+waitingPeer = "";
+}
+
+
+
   });
 });
 
