@@ -22,11 +22,10 @@ message ConnectionMessageServer
 	{
 		ACK_MATCH_MAKING = 0;
 		MATCH_FOUND = 1;
-		START_GAME = 2;
 	}
-		
+
 	ConnectionMessageTypeServer type = 1;
-	
+
 	ACKMM ackmm = 2;
 	StartGame startGame = 3;
 }
@@ -35,6 +34,7 @@ message StartMatchMaking
 {
 	int32 Elo = 3;
 	string myName = 4;
+	string challengedName = 5;
 }
 
 message ACKMM

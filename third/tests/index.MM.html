@@ -22,26 +22,32 @@ peer.on('connection', function(conn) {
     // Will print 'hi!'
    buffStr = data.split(",");
 
-var message = new proto.Connection.ConnectionMessageClient();
+var message = new proto.Connection.ConnectionMessageServer();
 
-message = proto.Connection.ConnectionMessageClient.deserializeBinary(buffStr);
+message = proto.Connection.ConnectionMessageServer.deserializeBinary(buffStr);
 
+if (message.getType() == proto.Connection.ConnectionMessageServer.ConnectionMessageTypeServer.ACK_MATCH_MAKING)
+{
+	document.getElementById("res").innerHTML += "ack MM : " + message.getAckmm().getIsok() + "<br />";
+}
+else if (message.getType() == proto.Connection.ConnectionMessageServer.ConnectionMessageTypeServer.MATCH_FOUND)
+{
+	document.getElementById("res").innerHTML += "MF : is main = " + message.getStartgame().getIsmain()  + " other name: " + message.getStartgame().getChallengedname()  + " <br />";
+}
+else
+{
+	document.getElementById("res").innerHTML += "other message received <br />";
+}
 
-document.getElementById("res").innerHTML += message.getStartmatchmaking().getMyname() + "<br />";
-//console.log(data);
   });
 });
 }
 
 function connectToPeer()
 {
-var conn = peer.connect(document.getElementById("OPeerID").value);
+var conn = peer.connect("server");
 conn.serialization='none';
 conn.on('open', function(){
-
-
-
-
 
 
 var message = new proto.Connection.ConnectionMessageClient();
@@ -50,10 +56,8 @@ message.setType(proto.Connection.ConnectionMessageClient.ConnectionMessageTypeCl
 
 var smm = new proto.Connection.StartMatchMaking();
 
-smm.setVersionmajor(0);
-smm.setVersionminor(0);
 smm.setElo(0);
-smm.setMyname("pomme");
+smm.setMyname(document.getElementById("peerID").value);
 smm.setChallengedname("");
 
 message.setStartmatchmaking(smm);

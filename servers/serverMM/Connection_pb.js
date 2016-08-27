@@ -480,8 +480,7 @@ proto.Connection.ConnectionMessageServer.prototype.hasStartgame = function() {
  */
 proto.Connection.ConnectionMessageServer.ConnectionMessageTypeServer = {
   ACK_MATCH_MAKING: 0,
-  MATCH_FOUND: 1,
-  START_GAME: 2
+  MATCH_FOUND: 1
 };
 
 
@@ -531,7 +530,8 @@ proto.Connection.StartMatchMaking.prototype.toObject = function(opt_includeInsta
 proto.Connection.StartMatchMaking.toObject = function(includeInstance, msg) {
   var f, obj = {
     elo: msg.getElo(),
-    myname: msg.getMyname()
+    myname: msg.getMyname(),
+    challengedname: msg.getChallengedname()
   };
 
   if (includeInstance) {
@@ -575,6 +575,10 @@ proto.Connection.StartMatchMaking.deserializeBinaryFromReader = function(msg, re
     case 4:
       var value = /** @type {string} */ (reader.readString());
       msg.setMyname(value);
+      break;
+    case 5:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setChallengedname(value);
       break;
     default:
       reader.skipField();
@@ -628,6 +632,13 @@ proto.Connection.StartMatchMaking.prototype.serializeBinaryToWriter = function (
       f
     );
   }
+  f = this.getChallengedname();
+  if (f.length > 0) {
+    writer.writeString(
+      5,
+      f
+    );
+  }
 };
 
 
@@ -667,6 +678,21 @@ proto.Connection.StartMatchMaking.prototype.getMyname = function() {
 /** @param {string} value  */
 proto.Connection.StartMatchMaking.prototype.setMyname = function(value) {
   jspb.Message.setField(this, 4, value);
+};
+
+
+/**
+ * optional string challengedName = 5;
+ * @return {string}
+ */
+proto.Connection.StartMatchMaking.prototype.getChallengedname = function() {
+  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 5, ""));
+};
+
+
+/** @param {string} value  */
+proto.Connection.StartMatchMaking.prototype.setChallengedname = function(value) {
+  jspb.Message.setField(this, 5, value);
 };
 
 

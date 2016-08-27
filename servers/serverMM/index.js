@@ -38,13 +38,13 @@ peer.on('connection', function(conn)
 		if (waitingPeer == "")
 		{
 			waitingPeer = messageP.getStartmatchmaking().getMyname()
-			console.log("peer start waiting : " + messageP.getStartmatchmaking().getMyname());
+			sendAckMM(messageP.getStartmatchmaking().getMyname());
 		}
 		else
 		{
 			//send the name of the waiting peer to the new peer and the new peer names to the waiting peer
 
-			console.log("match starting with " + waitingPeer + " and " + messageP.getStartmatchmaking().getMyname());
+			sendMF(messageP.getStartmatchmaking().getMyname());
 			waitingPeer = "";
 		}
 
@@ -53,6 +53,65 @@ peer.on('connection', function(conn)
  	 });
 });
 
+function sendAckMM(peerName)
+{
+	console.log("peer start waiting : " + peerName);
+	var conn = peer.connect(peerName);
+	conn.serialization='none'
+	conn.on('open', function()
+	{
+		var message = new proto.Connection.ConnectionMessageServer();
+
+		message.setType(proto.Connection.ConnectionMessageServer.ConnectionMessageTypeServer.ACK_MATCH_MAKING);
+
+		var smm = new proto.Connection.ACKMM();
+
+		smm.setIsok(true);
+
+		message.setAckmm(smm);
+
+		// Serializes to a UInt8Array.
+		bytes = message.serializeBinary();
+		//console.log('message len :' + bytes.length);
+		//console.log('message :' + bytes.toString());
+
+		conn.send(bytes.join());
+	});
+}
+
+function sendMF(peerName)
+{
+	console.log("match found : " + peerName + " and " + waitingPeer);
+	sendMFToPeer(peerName, waitingPeer, false);
+	sendMFToPeer(waitingPeer, peerName, true);
+}
+
+function sendMFToPeer(peerName, other, waiting)
+{
+	var conn = peer.connect(peerName);
+	conn.serialization='none'
+	conn.on('open', function()
+	{
+		var message = new proto.Connection.ConnectionMessageServer();
+
+		message.setType(proto.Connection.ConnectionMessageServer.ConnectionMessageTypeServer.MATCH_FOUND);
+
+		var smm = new proto.Connection.StartGame();
+
+		smm.setIsmain(waiting);
+
+		smm.setChallengedname(other);
+
+		message.setStartgame(smm);
+
+		// Serializes to a UInt8Array.
+		bytes = message.serializeBinary();
+		//console.log('message len :' + bytes.length);
+		//console.log('message :' + bytes.toString());
+
+		conn.send(bytes.join());
+	});
+}
 
 /*
 var peer2 = new Peer("toi", {host: 'localhost', port: 9000, path: '/'});

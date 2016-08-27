@@ -5,7 +5,7 @@ location = {protocol: 'http'}
 BinaryPack = require("binary-pack")
 XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
 var wrtc = require('electron-webrtc')()
-//var Peer = require('peerjs')
+var Peer = require('peerjs')
 
 RTCPeerConnection = wrtc.RTCPeerConnection;
 RTCSessionDescription = wrtc.RTCSessionDescription;
