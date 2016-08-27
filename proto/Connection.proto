@@ -33,13 +33,8 @@ message ConnectionMessageServer
 
 message StartMatchMaking
 {
-	int32 versionMajor = 1;
-	int32 versionMinor = 2;
-
 	int32 Elo = 3;
-	
 	string myName = 4;
-	string challengedName = 5;
 }
 
 message ACKMM
