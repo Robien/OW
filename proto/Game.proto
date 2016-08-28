@@ -1,0 +1,73 @@
+syntax = "proto3";
+package Game;
+
+message MessageType
+{
+	enum EMessageType
+	{
+		PING = 0;
+		PONG = 1;
+		REMOTE_DISCONNECTION = 2;
+		MOVE = 3;
+		NEXT_TURN = 4;
+		ATTACK = 5;
+	}
+	EMessageType type = 1;
+	
+	Ping ping = 2;
+	Pong pong = 3;
+	Move move = 4;
+	Attack attack = 5;
+}
+
+message Ping
+{
+	uint32 id = 1;
+}
+
+message Pong
+{
+	uint32 id = 1;
+}
+
+message Case
+{
+	uint32 x = 1;
+	uint32 y = 2;
+}
+
+message Move
+{
+	Case from = 1;
+	Case to = 2;
+}
+
+message Attack
+{
+	Case from = 1;
+	Case target = 2;
+}
+
+message CaseMap
+{
+	enum ECaseType
+	{
+		GRASS = 0;
+		ROAD = 1;
+	}
+	
+	enum EUnitType
+	{
+		RED_GUERRIER = 0;
+		BLUE_GERRIER = 1;
+	}
+	
+	ECaseType type = 1;
+	EUnitType unit = 2;
+}
+
+message Map
+{
+	string name = 1;
+	CaseMap cases = 2;
+}
