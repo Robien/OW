@@ -14,6 +14,56 @@
 
 var peer;
 var connPlayer;
+var startTimePing;
+
+function onPong()
+{
+	var end = new Date();
+	document.getElementById("res").innerHTML += "ping time = " + (end.getTime() - startTimerPing.getTime())  + "ms  <br />";
+	setTimeout(sendPing, 2000);
+}
+
+function sendPing()
+{
+
+	startTimerPing = new Date();
+
+	var message = new proto.Game.MessageType();
+
+	message.setType(proto.Game.MessageType.EMessageType.PING);
+
+
+	 var smm = new proto.Game.Ping();
+
+         smm.setId(0);
+
+         message.setPing(smm);
+
+	bytes = message.serializeBinary();
+	
+	connPlayer.send(bytes.join());
+	
+
+}
+
+function sendPong()
+{
+
+	var message = new proto.Game.MessageType();
+
+	message.setType(proto.Game.MessageType.EMessageType.PONG);
+
+	 var smm = new proto.Game.Pong();
+
+         smm.setId(0);
+
+         message.setPong(smm);
+
+	bytes = message.serializeBinary();
+
+	connPlayer.send(bytes.join());
+	
+}
 
 
 function startGame()
@@ -80,6 +130,17 @@ function connect()
 				{
 					document.getElementById("res").innerHTML += "ACK HELLO <br />";
 					startGame();
+					setTimeout(sendPing, 1000);
+				}
+				else if (message.getType() == proto.Game.MessageType.EMessageType.PING)
+				{
+				//	document.getElementById("res").innerHTML += "PING => <br />";
+					sendPong();
+				}
+				else if (message.getType() == proto.Game.MessageType.EMessageType.PONG)
+				{
+				//	document.getElementById("res").innerHTML += "PONG => <br />";
+					onPong();
 				}
 				else
 				{
@@ -132,6 +193,7 @@ function sendHelloACK()
 
 	connPlayer.send(bytes.join());
 	startGame();
+	setTimeout(sendPing, 2000);
 	
 }
 
