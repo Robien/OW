@@ -1,5 +1,6 @@
 <script src="http://cdn.peerjs.com/0.3/peer.js"></script>
 <script src="./connection.js"></script>
+<script src="./game.js"></script>
 
 
 <input type="text" id="peerID" /> <input type="button" OnClick="javascript:connect()" />
@@ -12,70 +13,175 @@
 <script>
 
 var peer;
+var connPlayer;
+
+
+function startGame()
+{
+	document.getElementById("res").innerHTML += "START GAME ! <br />";
+}
 
 
 function connect()
 {
-peer = new Peer(document.getElementById("peerID").value, {host: '192.168.1.23', port: 9000, path: '/'});
-peer.on('connection', function(conn) {
-  conn.on('data', function(data){
-    // Will print 'hi!'
-   buffStr = data.split(",");
+	peer = new Peer(document.getElementById("peerID").value, {host: '192.168.1.23', port: 9000, path: '/'});
+	peer.on('connection', function(conn) {
+		if (conn.peer == "server")
+		{
+			conn.on('data', function(data){
+				buffStr = data.split(",");
+		
+				var message = new proto.Connection.ConnectionMessageServer();
+		
+				message = proto.Connection.ConnectionMessageServer.deserializeBinary(buffStr);
+		
+				if (message.getType() == proto.Connection.ConnectionMessageServer.ConnectionMessageTypeServer.ACK_MATCH_MAKING)
+				{
+					document.getElementById("res").innerHTML += "ack MM : " + message.getAckmm().getIsok() + "<br />";
+				}
+				else if (message.getType() == proto.Connection.ConnectionMessageServer.ConnectionMessageTypeServer.MATCH_FOUND)
+				{
+					document.getElementById("res").innerHTML += "MF : is main = " + message.getStartgame().getIsmain()  + " other name: " + message.getStartgame().getChallengedname()  + " <br />";
+					if (message.getStartgame().getIsmain())
+					{
+						connectToPlayer(message.getStartgame().getChallengedname(), false);
+					}
+				}
+				else
+				{
+					document.getElementById("res").innerHTML += "other message received <br />";
+				}
+		
+			});
+		}
+		else
+		{
 
-var message = new proto.Connection.ConnectionMessageServer();
+			conn.on('data', function(data){
+				buffStr = data.split(",");
+		
+				var message = new proto.Game.MessageType();
+		
+				message = proto.Game.MessageType.deserializeBinary(buffStr);
+		
+				if (message.getType() == proto.Game.MessageType.EMessageType.HELLO)
+				{
+					if (message.getHello().getChallenged())
+					{
+						document.getElementById("res").innerHTML += "HELLO mode challenge : by " + message.getHello().getMyname() + "<br />";
+					}
+					else
+					{
+						document.getElementById("res").innerHTML += "HELLO : by " + message.getHello().getMyname() + "<br />";
+						connectToPlayer(message.getHello().getMyname(), true);
+					}
+				}
+				else if (message.getType() == proto.Game.MessageType.EMessageType.ACK_HELLO)
+				{
+					document.getElementById("res").innerHTML += "ACK HELLO <br />";
+					startGame();
+				}
+				else
+				{
+					document.getElementById("res").innerHTML += "other message received <br />";
+				}
+		
+			});
+		}
+	});
+}
 
-message = proto.Connection.ConnectionMessageServer.deserializeBinary(buffStr);
-
-if (message.getType() == proto.Connection.ConnectionMessageServer.ConnectionMessageTypeServer.ACK_MATCH_MAKING)
+function sendHello()
 {
-	document.getElementById("res").innerHTML += "ack MM : " + message.getAckmm().getIsok() + "<br />";
-}
-else if (message.getType() == proto.Connection.ConnectionMessageServer.ConnectionMessageTypeServer.MATCH_FOUND)
-{
-	document.getElementById("res").innerHTML += "MF : is main = " + message.getStartgame().getIsmain()  + " other name: " + message.getStartgame().getChallengedname()  + " <br />";
-}
-else
-{
-	document.getElementById("res").innerHTML += "other message received <br />";
+
+	var message = new proto.Game.MessageType();
+
+	message.setType(proto.Game.MessageType.EMessageType.HELLO);
+
+	var smm = new proto.Game.Hello();
+
+	smm.setMyname(document.getElementById("peerID").value);
+	smm.setChallenged(false);
+
+	message.setHello(smm);
+
+	// Serializes to a UInt8Array.
+	bytes = message.serializeBinary();
+	//console.log('message len :' + bytes.length);
+	//console.log('message :' + bytes.toString());
+
+
+
+	//alert(bytes.length);
+	//alert(bytes.join());
+
+	connPlayer.send(bytes.join());
+	
 }
 
-  });
-});
+
+function sendHelloACK()
+{
+
+	var message = new proto.Game.MessageType();
+
+	message.setType(proto.Game.MessageType.EMessageType.ACK_HELLO);
+
+	// Serializes to a UInt8Array.
+	bytes = message.serializeBinary();
+
+	connPlayer.send(bytes.join());
+	startGame();
+	
 }
+
+function connectToPlayer(peerID, ack)
+{
+	connPlayer = peer.connect(peerID);
+	connPlayer.serialization='none';
+	if (ack)
+	{
+		connPlayer.on('open', sendHelloACK);
+	}
+	else
+	{
+		connPlayer.on('open', sendHello);
+	}
+}
+
 
 function connectToPeer()
 {
-var conn = peer.connect("server");
-conn.serialization='none';
-conn.on('open', function(){
+	var conn = peer.connect("server");
+	conn.serialization='none';
+	conn.on('open', function(){
 
 
-var message = new proto.Connection.ConnectionMessageClient();
+		var message = new proto.Connection.ConnectionMessageClient();
 
-message.setType(proto.Connection.ConnectionMessageClient.ConnectionMessageTypeClient.START_MATCH_MAKING);
+		message.setType(proto.Connection.ConnectionMessageClient.ConnectionMessageTypeClient.START_MATCH_MAKING);
 
-var smm = new proto.Connection.StartMatchMaking();
+		var smm = new proto.Connection.StartMatchMaking();
 
-smm.setElo(0);
-smm.setMyname(document.getElementById("peerID").value);
-smm.setChallengedname("");
+		smm.setElo(0);
+		smm.setMyname(document.getElementById("peerID").value);
+		smm.setChallengedname("");
 
-message.setStartmatchmaking(smm);
+		message.setStartmatchmaking(smm);
 
-// Serializes to a UInt8Array.
-bytes = message.serializeBinary();
-//console.log('message len :' + bytes.length);
-//console.log('message :' + bytes.toString());
+		// Serializes to a UInt8Array.
+		bytes = message.serializeBinary();
+		//console.log('message len :' + bytes.length);
+		//console.log('message :' + bytes.toString());
 
 
 
-//alert(bytes.length);
-//alert(bytes.join());
+		//alert(bytes.length);
+		//alert(bytes.join());
 
-conn.send(bytes.join());
+		conn.send(bytes.join());
 
-//  conn.send('hi!');
-});
+	});
 
 
 }
