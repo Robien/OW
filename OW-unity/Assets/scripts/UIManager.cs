@@ -56,7 +56,7 @@ public class UIManager : MonoBehaviour
 			if (selectedUnit) 
 			{
 				selectedUnit.setSelected (false);
-				selectedUnit = null;
+				setSelectedUnit (null);
 			}
 		}
 		else
@@ -71,9 +71,14 @@ public class UIManager : MonoBehaviour
 				c.getUnit ().setSelected (true);
 			}
 
-			selectedUnit = c.getUnit ();
+			setSelectedUnit(c.getUnit ());
 
 			Debug.Log (c.posX + " - " + c.posY + " " + c.getUnit().gameObject.name); 
 		}
+	}
+
+	public void setSelectedUnit(Unit unit)
+	{
+		selectedUnit = unit;
 	}
 }
