@@ -8,6 +8,9 @@ public class Case : MonoBehaviour
 	public UIManager uiManager;
 
 	public int posX, posY;
+	public int moveCost  = 0;
+
+	private Unit unit = null;
 
 	// Use this for initialization
 	void Start () 
@@ -16,7 +19,7 @@ public class Case : MonoBehaviour
 	}
 	
 	// Update is called once per frame
-	void Update () 
+	void Update ()
 	{
 		
 	}
@@ -25,6 +28,16 @@ public class Case : MonoBehaviour
 	{
 		posX = x;
 		posY = y;
+	}
+
+	public void setUnit(Unit u)
+	{
+		unit = u;
+	}
+
+	public Unit getUnit()
+	{
+		return unit;
 	}
 
 	void OnMouseDown()

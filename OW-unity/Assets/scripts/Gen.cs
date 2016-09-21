@@ -163,6 +163,7 @@ public class Gen : MonoBehaviour
 		Case c = tile.GetComponent<Case> ();
 		c.uiManager = uiManager;
 		c.setPosition (i, j);
+		uiManager.addCase (i, j, c);
 		worldTerrain.setCase (i, j, tile);
 		tile.name = tile.name + "(" + i + ", " + j + ")";
 		tile.transform.SetParent (world.transform);
@@ -177,6 +178,8 @@ public class Gen : MonoBehaviour
 	{
 		GameObject tile = Instantiate<GameObject> (getUnits(color).getUnit(UnitType.ARCHER));
 		tile.transform.SetParent (getTile(i, j).transform);
+		getTile (i, j).GetComponent<Case> ().setUnit (tile.GetComponent<Unit> ());
+		tile.GetComponent<Unit> ().setCase (getTile (i, j).GetComponent<Case> ());
 		tile.transform.localPosition = new Vector3 (0, 0, LAYER_UNIT);
 		return tile;
 	}
