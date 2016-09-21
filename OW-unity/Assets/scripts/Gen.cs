@@ -120,6 +120,7 @@ public class Gen : MonoBehaviour
 
 	void genWorld()
 	{
+		uiManager.declareWorld (10, 5);
 		worldTerrain = new World (10, 5);
 		for (int i = 0; i < 10; i++) 
 		{
@@ -138,6 +139,7 @@ public class Gen : MonoBehaviour
 			i++;
 			DestroyImmediate(world.transform.GetChild (0).gameObject);
 		}
+		uiManager.deleteWorld ();
 	}
 
 
