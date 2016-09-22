@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class UIManager : MonoBehaviour
 {
+	public int maxItt = 0;
 
 	public class World
 	{
@@ -13,11 +14,42 @@ public class UIManager : MonoBehaviour
 		{
 			terrain = new Case[x,y];
 		}
+
+		public Case getCase(int x, int y)
+		{
+			if (x >= terrain.GetLength (0) || x < 0 || y >= terrain.GetLength (1) || y < 0) 
+			{
+				return null;
+			}
+			return terrain[x, y];
+		}
 	}
 
-	private World world = null;
+	public class PathFinderData
+	{
+		public Case PreviusCase = null;
+		public int distance = int.MaxValue;
+	}
 
+
+	public class WorldPathFinder
+	{
+		public World world;
+		public PathFinderData[,] data;
+		
+		public WorldPathFinder(World w)
+		{
+			world = w;
+			data = new PathFinderData[w.terrain.GetLength(0),w.terrain.GetLength(1)];
+			Debug.Log("created data [" + data.GetLength(0) + ", " + data.GetLength(1) + "]");
+		}
+	}
+
+
+	private World world = null;
+	private WorldPathFinder currentPathFinder = null;
 	private Unit selectedUnit = null;
+
 
 	// Use this for initialization
 	void Start ()
@@ -80,5 +112,65 @@ public class UIManager : MonoBehaviour
 	public void setSelectedUnit(Unit unit)
 	{
 		selectedUnit = unit;
+		if (unit != null)
+		{
+			computePossiblePaths (unit);
+		}
+	}
+
+	private void computePossiblePaths(Unit unit)
+	{
+		currentPathFinder = new WorldPathFinder (world);
+		maxItt = 0;
+		computePossiblePathsRecursif (unit, unit.getCase (), null, unit.movePoint);
+	}
+
+	private void computePossiblePathsRecursif(Unit unit, Case c, Case previous, int movePoint)
+	{
+		if (c == null || movePoint < c.moveCost) 
+		{
+			return;
+		}
+		maxItt++;
+		if (maxItt > 1000)
+		{
+			return;
+		}
+
+		int x = c.posX;
+		int y = c.posY;
+		//Debug.Log (maxItt + " : " + x + " - " + y + " => " + movePoint);
+
+		if (currentPathFinder.data [x, y] == null)
+		{
+			currentPathFinder.data [x, y] = new PathFinderData ();
+		}
+		else if (currentPathFinder.data [x, y].distance > movePoint)
+		{
+			return;
+		}
+			
+		int remainingMovePoint = movePoint - c.moveCost;
+		if (previous == null)
+		{
+			remainingMovePoint = movePoint;
+		}
+
+		{
+			currentPathFinder.data [x, y].distance = remainingMovePoint;
+			currentPathFinder.data [x, y].PreviusCase = previous;
+			c.gameObject.GetComponent<SpriteRenderer> ().color = Color.yellow;
+			c.debugData = remainingMovePoint;
+		}
+
+		computePossiblePathsRecursif(unit, world.getCase(x + 1, y), c, remainingMovePoint);
+		//computePossiblePathsRecursif(unit, world.getCase(x + 1, y + 1), c, remainingMovePoint);
+		//computePossiblePathsRecursif(unit, world.getCase(x + 1, y - 1), c, remainingMovePoint);
+		computePossiblePathsRecursif(unit, world.getCase(x, y + 1), c, remainingMovePoint);
+		computePossiblePathsRecursif(unit, world.getCase(x, y - 1), c, remainingMovePoint);
+		//computePossiblePathsRecursif(unit, world.getCase(x - 1, y + 1), c, remainingMovePoint);
+		computePossiblePathsRecursif(unit, world.getCase(x - 1, y), c, remainingMovePoint);
+	//	computePossiblePathsRecursif(unit, world.getCase(x - 1, y - 1), c, remainingMovePoint);
+
 	}
 }

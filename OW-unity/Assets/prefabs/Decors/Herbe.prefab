@@ -70,6 +70,7 @@ MonoBehaviour:
   uiManager: {fileID: 0}
   posX: 0
   posY: 0
+  moveCost: 1
 --- !u!212 &212000012685066748
 SpriteRenderer:
   m_ObjectHideFlags: 1

@@ -12,6 +12,8 @@ public class Case : MonoBehaviour
 
 	private Unit unit = null;
 
+	public int debugData = -523;
+
 	// Use this for initialization
 	void Start () 
 	{
